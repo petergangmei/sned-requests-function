@@ -20,15 +20,12 @@ def fetch_url(url):
         with count_lock:
             request_count += 1
             print(f'----- Request count: {request_count}')
-        # print(f' URL -> {url}')
         if response.status_code != 200:
             print(f'----- Response code: {response.status_code}')
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
-    
-    
 
-def main(num_requests=1):
+def main(num_requests=1, num_loops=None):
     global loop_count
     with ThreadPoolExecutor(max_workers=num_requests) as executor:
         while True:
@@ -42,10 +39,16 @@ def main(num_requests=1):
             for future in as_completed(futures):
                 future.result()
             
+            # Break the loop if the number of loops is defined and reached
+            if num_loops is not None and loop_count >= num_loops:
+                break
+            
             # You can adjust the sleep time based on how often you want to make requests
             time.sleep(1)  # Wait for 1 second before making the next batch of requests
 
 if __name__ == "__main__":
     # Set the number of concurrent requests you want to make
-    num_requests = 5  # Change this number as needed
-    main(num_requests)
+    num_requests = 1  # Change this number as needed
+    # Set the number of loops (None for infinite loop)
+    num_loops = None  # Change this number as needed or set to None for infinite loop
+    main(num_requests, num_loops)
